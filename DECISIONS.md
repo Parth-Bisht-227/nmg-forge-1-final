@@ -22,4 +22,8 @@ Format:
 ---
 
 ## My log
-- `[--:--]` ...
+- `[-12:55]` Verified starter bundle before making any code changes. Observed that run.py completes successfully and generates report.json/report.html Dashboard issue traced to process lifecycle rather than MCP installation or port conflict. 
+Decision: Understand architecture before implementing detectors.
+
+- `[-13:15-]`Completed architecture review before implementing features.
+Findings: MCP server and dashboard infrastructure already functional. Dashboard issue caused by run.py lifecycle, not port conflicts. detector.py contains only starter rule implementation. Primary scoring opportunity remains rulebook completion.Decision: Implement deterministic detectors before any AI-generated fixes.
