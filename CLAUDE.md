@@ -29,6 +29,17 @@ dashboard at localhost:7700, and outputs `outputs/report.json` + `outputs/report
 - Commit after each working step with a real message.
 - Run `python run.py sample-export/` to test end to end.
 
-## Things I have learned during the build (update this as you go)
-- (e.g. "SF leaves Title 1 blank on redirected URLs — must filter Status Code 200 first")
-- ...
+## Things I have learned during the build
+
+- Screaming Frog leaves Title 1 blank on redirect and non-HTML rows — always filter
+  `is_html(r) and is_200(r)` before any title/meta check, or counts inflate.
+- `indexable(r)` checks `Indexability == "Indexable"` (case-sensitive strip). Non-indexable
+  pages must be excluded from missing/duplicate title and meta checks per rulebook.
+- `redirect_chain` requires a pre-built set of all 3xx Address values. Then for each 3xx
+  row, check if its Redirect URL is in that set. Do NOT just check status code of target.
+- `duplicate_*` detectors: build a dict of value → [urls], then flag entries with len > 1.
+  Only use indexable pages as inputs to avoid noise from redirected/canonicalised pages.
+- Dashboard (localhost:7700) was not loading because run.py was not starting mcp/server.py
+  as a subprocess first. The MCP server must boot before the detect loop runs.
+- `Response Time` column uses floats — always use `_float()` not `_int()`.
+- `Word Count` can be empty string in some rows — `_int()` handles None/empty safely.

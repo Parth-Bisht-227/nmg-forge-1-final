@@ -89,13 +89,57 @@ def detect(rows: list[dict]) -> list[dict]:
         [r["Address"] for r in idx200 if _int(r.get("Inlinks")) == 0],
         "Indexable pages with zero internal links in.")
 
-    # ----------------------------------------------------------------------- #
-    # TODO (Sprint): add the rest of the rulebook for full accuracy:
-    #   title_too_short, missing_meta_description, duplicate_meta_description,
-    #   meta_description_too_long, missing_h1, duplicate_h1, redirect_chain,
-    #   thin_content, non_indexable_but_linked, slow_page
-    # Each is a short rule over the columns — see rulebook.md.
-    # ----------------------------------------------------------------------- #
+    # --- Meta Descriptions ---
+    add("missing_meta_description", "Medium",
+        [r["Address"] for r in idx200 if not (r.get("Meta Description 1", "") or "").strip()],
+        "Indexable pages missing a meta description.")
+
+    by_meta = defaultdict(list)
+    for r in idx200:
+        m = (r.get("Meta Description 1", "") or "").strip()
+        if m:
+            by_meta[m].append(r["Address"])
+    dup_m = [u for urls in by_meta.values() if len(urls) > 1 for u in urls]
+    add("duplicate_meta_description", "Medium", dup_m, "Pages sharing an identical meta description.")
+
+    add("meta_description_too_long", "Low",
+        [r["Address"] for r in idx200 if _int(r.get("Meta Description 1 Length")) > 155],
+        "Meta descriptions that are likely truncated.")
+
+    # --- Headings ---
+    add("missing_h1", "Medium",
+        [r["Address"] for r in html if is_200(r) and not (r.get("H1-1", "") or "").strip()],
+        "200 OK HTML pages missing an H1 tag.")
+
+    by_h1 = defaultdict(list)
+    for r in idx200:
+        h1 = (r.get("H1-1", "") or "").strip()
+        if h1:
+            by_h1[h1].append(r["Address"])
+    dup_h1 = [u for urls in by_h1.values() if len(urls) > 1 for u in urls]
+    add("duplicate_h1", "Low", dup_h1, "Indexable pages sharing an identical H1.")
+
+    # --- Content & Performance ---
+    add("title_too_short", "Low",
+        [r["Address"] for r in idx200 if _int(r.get("Title 1 Length")) < 30 and (r.get("Title 1", "") or "").strip()],
+        "Titles that are too short to be effective.")
+
+    add("thin_content", "Low",
+        [r["Address"] for r in idx200 if _int(r.get("Word Count")) < 200],
+        "Indexable pages with very low word count.")
+
+    add("non_indexable_but_linked", "Medium",
+        [r["Address"] for r in html if is_200(r) and not indexable(r) and _int(r.get("Inlinks")) > 0],
+        "Non-indexable pages that are still being linked to.")
+
+    add("slow_page", "Low",
+        [r["Address"] for r in html if is_200(r) and _float(r.get("Response Time")) > 1.0],
+        "Pages with a response time greater than 1 second.")
+
+    # --- Chains ---
+    redirects_3xx = {r["Address"] for r in rows if 300 <= _int(r.get("Status Code")) <= 399}
+    chains = [r["Address"] for r in rows if 300 <= _int(r.get("Status Code")) <= 399 and r.get("Redirect URL") in redirects_3xx]
+    add("redirect_chain", "High", chains, "Redirects that lead to another redirect.")
 
     return issues
 
