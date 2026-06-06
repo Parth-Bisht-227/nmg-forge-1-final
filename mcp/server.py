@@ -58,11 +58,12 @@ def _guess_site(rows):
 
 
 def seo_detect() -> dict:
-    issues = detector.detect(RUN.get("rows", []))
+    issues = detector.detect(
+        RUN.get("rows", []),
+        emit_fn=lambda etype, entry: _emit("issue", entry)
+    )
     RUN["issues"] = issues
     RUN["summary"] = detector.summarize(issues)
-    for i in issues:
-        _emit("issue", i)
     _emit("summary", RUN["summary"])
     return {"detected": len(issues), "summary": RUN["summary"]}
 

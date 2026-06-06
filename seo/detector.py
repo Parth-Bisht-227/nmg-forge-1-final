@@ -40,16 +40,25 @@ def is_200(r):   return _int(r.get("Status Code")) == 200
 def indexable(r): return (r.get("Indexability", "") or "").strip().lower() == "indexable"
 
 
-def detect(rows: list[dict]) -> list[dict]:
+def detect(rows: list[dict], emit_fn=None) -> list[dict]:
     """Return a list of issue dicts: {type, severity, affected_urls, count, explanation}.
     STARTER set — extend to the full rulebook for a high score."""
     issues = []
 
     def add(t, sev, urls, explanation):
         urls = sorted(set(urls))
-        if urls:
-            issues.append({"type": t, "severity": sev, "affected_urls": urls,
-                           "count": len(urls), "explanation": explanation})
+        if not urls:
+            return
+        entry = {
+            "type": t,
+            "severity": sev,
+            "affected_urls": urls,
+            "count": len(urls),
+            "explanation": explanation
+        }
+        issues.append(entry)
+        if emit_fn:
+            emit_fn(t, entry)
 
     html = [r for r in rows if is_html(r)]
     idx200 = [r for r in html if is_200(r) and indexable(r)]
@@ -108,7 +117,7 @@ def detect(rows: list[dict]) -> list[dict]:
 
     # --- Headings ---
     add("missing_h1", "Medium",
-        [r["Address"] for r in html if is_200(r) and not (r.get("H1-1", "") or "").strip()],
+       [r["Address"] for r in html if not indexable(r) and _int(r.get("Inlinks")) > 0],
         "200 OK HTML pages missing an H1 tag.")
 
     by_h1 = defaultdict(list)
@@ -133,7 +142,7 @@ def detect(rows: list[dict]) -> list[dict]:
         "Non-indexable pages that are still being linked to.")
 
     add("slow_page", "Low",
-        [r["Address"] for r in html if is_200(r) and _float(r.get("Response Time")) > 1.0],
+        [r["Address"] for r in html if _float(r.get("Response Time")) > 1.0],
         "Pages with a response time greater than 1 second.")
 
     # --- Chains ---
