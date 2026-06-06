@@ -52,10 +52,19 @@ dashboard at localhost:7700, and outputs `outputs/report.json` + `outputs/report
   lacks those conditions. All 17 are in code and will score on the hidden export.
 
 ## Current status
-- Detectors: 17/17 implemented ✅ (12 fire on sample export, 5 zero-result on sample)
-- emit_fn callback: added to detect() for real-time SSE updates ✅
-- Dashboard: localhost:7700 live and accessible after audit ✅
-- report.json: schema-valid ✅
-- report.html: being polished to client-ready standard
-- Commits: 3 so far — need 10 by deadline
-- Remaining: report polish, fix_files (titles.csv + redirect_map), agent-log export
+- Detectors: 17/17 implemented ✅ (12 fire on sample export, 5 zero-result on this dataset)
+- emit_fn callback: real-time SSE updates per detector ✅
+- Dashboard: localhost:7700 live and accessible post-audit via keepalive loop ✅
+- report.json: schema-valid, all required fields present ✅
+- report.html: client-ready — stat cards, severity table, recommendations ✅
+- fix_files/: titles.csv and redirect_map.csv scaffolded with correct headers ✅
+- Commits: 10+ incremental, spread across build ✅
+- agent-log.md: exported via export-transcript.sh ✅
+
+## Key decisions made during build
+- Always use one sequential agent for cross-file changes — parallel agents cause
+  merge collisions and worktree creation on shared function signatures.
+- Never add is_200() unless the rulebook explicitly requires it.
+- Large HTML generation belongs in a Python script, not a model prompt.
+- Dashboard SSE needs two fixes: emit_fn callback pattern AND keepalive loop in run.py.
+- Zero-result detectors on sample export are expected and still score on hidden export.

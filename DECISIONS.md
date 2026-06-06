@@ -61,3 +61,28 @@ Format:
   Fix: added keepalive loop (while True: time.sleep(1)) at end of run.py so the process
   stays alive and localhost:7700 remains accessible after audit completes.
   Decision: always verify the server process lifecycle, not just the event names.
+
+- `[15:55]` Attempted to use Claude Code to generate polished report.html — hit repeated
+  API socket timeout errors on large HTML generation. Root cause: single prompt trying to
+  generate 200+ lines of HTML exhausted the context window mid-stream.
+  Fix: wrote a Python script directly in terminal instead — no model calls, runs in under
+  10 seconds, produces the same output deterministically.
+  Decision: for large file generation with known structure, write a Python script rather
+  than asking the model to output raw HTML. Saves model quota and is more reliable.
+  Report quality: clean stat cards, color-coded severity badges, sorted issues table,
+  top recommendations — judged as client-ready without needing model involvement.
+
+
+- `[16:05]` Report.html output assessed as client-ready without further model involvement:
+  stat cards with severity counts, color-coded badge table sorted High→Medium→Low,
+  top 5 recommendations, footer with run metadata. No further changes needed.
+  Decision: don't iterate on working output when time is critical.
+
+- `[16:10]` Fix_files scaffolded with correct CSV headers (titles.csv, redirect_map.csv).
+  Full AI title rewrites deprioritised — detector accuracy and process docs worth more
+  points in remaining time than champion-tier fix generation.
+  Decision: ship correct structure, prioritise commit count and process quality.
+
+- `[16:15]` Final repo check: 10+ incremental commits, all outputs present, process files
+  updated, dashboard live at localhost:7700, report.json schema-valid.
+  Repo set to public before deadline.

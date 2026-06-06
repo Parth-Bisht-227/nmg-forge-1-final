@@ -123,3 +123,19 @@ markdown# PROMPTS.md — key prompts log
   Keepalive holds the process open so the browser can reach the dashboard.
 - **Revised?** No — one-shot fix.
 
+
+### 5. Report HTML generation — pivot to Python script
+- **Prompt:** N/A — Claude Code hit socket timeout on large HTML generation. Switched to
+  a terminal Python script reading report.json directly and writing structured HTML.
+- **For:** Client-ready report.html — 7 human-judged points for report quality
+- **Revised?** Yes — original approach was a Claude Code prompt. Pivoted to direct Python
+  after two consecutive API failures. Key learning: large deterministic file generation
+  belongs in a script, not a model prompt.
+
+### 6. Dashboard keepalive
+- **Prompt:** "Add a keepalive loop at the end of run.py after report is written:
+  try: while True: time.sleep(1) except KeyboardInterrupt: print('Shutting down.')
+  Ensure import time is present at the top."
+- **For:** ERR_CONNECTION_REFUSED fix — daemon thread HTTP server dies when main process
+  exits. Keepalive holds process open so localhost:7700 stays accessible after audit.
+- **Revised?** No — one-shot fix, confirmed working in browser.
