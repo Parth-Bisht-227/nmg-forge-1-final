@@ -28,7 +28,6 @@ dashboard at localhost:7700, and outputs `outputs/report.json` + `outputs/report
 ## Conventions
 - Commit after each working step with a real message.
 - Run `python run.py sample-export/` to test end to end.
-
 ## Things I have learned during the build
 
 - Screaming Frog leaves Title 1 blank on redirect and non-HTML rows — always filter
@@ -39,7 +38,24 @@ dashboard at localhost:7700, and outputs `outputs/report.json` + `outputs/report
   row, check if its Redirect URL is in that set. Do NOT just check status code of target.
 - `duplicate_*` detectors: build a dict of value → [urls], then flag entries with len > 1.
   Only use indexable pages as inputs to avoid noise from redirected/canonicalised pages.
-- Dashboard (localhost:7700) was not loading because run.py was not starting mcp/server.py
-  as a subprocess first. The MCP server must boot before the detect loop runs.
+- Rulebook has no status code restriction on `slow_page` or `non_indexable_but_linked`.
+  Never add is_200() unless the rulebook explicitly requires it.
+- Dashboard SSE fix required two separate things: (1) emit_fn callback pattern so each
+  detector fires _emit immediately rather than batch-emitting after detect() returns,
+  (2) keepalive loop at end of run.py so the daemon thread HTTP server stays alive
+  after the audit completes — without it, ERR_CONNECTION_REFUSED on every browser load.
+- Parallel subagents on files that share a function signature cause merge collisions and
+  worktree creation. Always use one sequential agent for cross-file changes.
 - `Response Time` column uses floats — always use `_float()` not `_int()`.
 - `Word Count` can be empty string in some rows — `_int()` handles None/empty safely.
+- 12/17 detectors fire on sample export — 5 return zero hits because the sample dataset
+  lacks those conditions. All 17 are in code and will score on the hidden export.
+
+## Current status
+- Detectors: 17/17 implemented ✅ (12 fire on sample export, 5 zero-result on sample)
+- emit_fn callback: added to detect() for real-time SSE updates ✅
+- Dashboard: localhost:7700 live and accessible after audit ✅
+- report.json: schema-valid ✅
+- report.html: being polished to client-ready standard
+- Commits: 3 so far — need 10 by deadline
+- Remaining: report polish, fix_files (titles.csv + redirect_map), agent-log export
