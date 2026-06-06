@@ -208,8 +208,8 @@
       "type": "missing_h1",
       "severity": "Medium",
       "affected_urls": [
-        "https://nmgtechnologies.com/company/process/",
-        "https://nmgtechnologies.com/contact-us"
+        "https://nmgtechnologies.com/industry/edtech",
+        "https://nmgtechnologies.com/solution/internet-of-things/"
       ],
       "count": 2,
       "explanation": "200 OK HTML pages missing an H1 tag."
