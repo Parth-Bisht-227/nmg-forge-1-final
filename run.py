@@ -55,6 +55,13 @@ def main():
     print(f"Total issues : {s['total_issues']}  (High {s['by_severity'].get('High',0)} / "
           f"Medium {s['by_severity'].get('Medium',0)} / Low {s['by_severity'].get('Low',0)})")
     print("Wrote outputs/report.json and outputs/report.html")
+    print("[seo] Audit complete. Dashboard still live at http://localhost:7700")
+    print("[seo] Press Ctrl+C to exit.")
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        print("[seo] Shutting down.")
 
 
 if __name__ == "__main__":
