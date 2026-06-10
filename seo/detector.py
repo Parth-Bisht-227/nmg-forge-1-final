@@ -117,7 +117,7 @@ def detect(rows: list[dict], emit_fn=None) -> list[dict]:
 
     # --- Headings ---
     add("missing_h1", "Medium",
-       [r["Address"] for r in html if not indexable(r) and _int(r.get("Inlinks")) > 0],
+        [r["Address"] for r in html if is_200(r) and not (r.get("H1-1", "") or "").strip()],
         "200 OK HTML pages missing an H1 tag.")
 
     by_h1 = defaultdict(list)

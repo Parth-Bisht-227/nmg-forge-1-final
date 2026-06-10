@@ -208,8 +208,8 @@
       "type": "missing_h1",
       "severity": "Medium",
       "affected_urls": [
-        "https://nmgtechnologies.com/industry/edtech",
-        "https://nmgtechnologies.com/solution/internet-of-things/"
+        "https://nmgtechnologies.com/company/process/",
+        "https://nmgtechnologies.com/contact-us"
       ],
       "count": 2,
       "explanation": "200 OK HTML pages missing an H1 tag."
@@ -332,6 +332,6 @@
   "run_meta": {
     "model": "qwen3.5:9b",
     "model_calls": 0,
-    "duration_sec": 0.0
+    "duration_sec": 0.1
   }
 }
